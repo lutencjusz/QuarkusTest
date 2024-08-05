@@ -8,10 +8,10 @@ import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 @QuarkusTest
@@ -51,7 +51,24 @@ class GreetingResourceTest {
                 .get("/accounts/Bob")
                 .then()
                 .statusCode(200)
-                .body(containsString("Bob"));
+                .body(notNullValue())
+                .body("name", equalTo("Bob"))
+                .body("accountNumber", equalTo("789-123"));
+    }
+
+    @Test
+    void testAccountAddAccount() {
+        Account account = new Account(UUID.randomUUID(), "Charlie", "456-789");
+        given()
+                .when()
+                .contentType("application/json")
+                .body(account)
+                .post("/accounts")
+                .then()
+                .statusCode(200)
+                .body(notNullValue())
+                .body("name", equalTo("Charlie"))
+                .body("accountNumber", equalTo("456-789"));
     }
 
 }
